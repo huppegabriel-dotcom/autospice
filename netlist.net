@@ -1,0 +1,36 @@
+Two-stage Miller op-amp (open-loop AC testbench)
+
+* Supply and input
+VDD vdd 0 dc 1.8
+Vin inp 0 sine 0.9 100m 1k ac 1
+
+* Bias: diode-connected reference + current source
+Ibias vdd nb dc 20u
+M8 nb nb 0 0 nmos W=10u L=1u
+
+* First stage: tail source, NMOS input pair, PMOS mirror load
+M5 nt nb 0 0 nmos W=20u L=1u
+M1 n1 inm nt 0 nmos W=20u L=1u
+M2 n2 inp nt 0 nmos W=20u L=1u
+M3 n1 n1 vdd vdd pmos W=20u L=1u
+M4 n2 n1 vdd vdd pmos W=20u L=1u
+
+* Second stage: PMOS common-source + NMOS current sink
+M6 out n2 vdd vdd pmos W=80u L=1u
+M7 out nb 0 0 nmos W=40u L=1u
+
+* Compensation and load
+Cc n2 out 1p
+CL out 0 2p
+
+* DC feedback trick: sets the bias point at DC, opens the loop for AC
+Lfb out inm 1G
+Cfb inm 0 1G
+
+.model nmos nmos (level=1 vto=0.5 kp=200u lambda=0.05 gamma=0.4 phi=0.7 tox=4n cgso=3e-10 cgdo=3e-10)
+.model pmos pmos (level=1 vto=-0.5 kp=80u lambda=0.06 gamma=0.4 phi=0.7 tox=4n cgso=3e-10 cgdo=3e-10)
+
+.op
+.ac dec 20 1 1G
+.noise v(out) Vin dec 20 1 1G
+.end

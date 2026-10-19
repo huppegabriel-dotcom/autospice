@@ -1,0 +1,6 @@
+RC low-pass filter
+Vin  in  0   ac 1
+R1   in  out 10k
+C1   out 0   10n
+.ac dec 50 10 100Meg
+.end
